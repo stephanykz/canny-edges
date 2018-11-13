@@ -138,26 +138,39 @@ def smooth( image):
                                   [1,  4,  7,  4, 1]] )
 
   # YOUR CODE HERE
+  '''
   kernel_height = kernel.shape[0]
   kernel_width = kernel.shape[1]
   n = max(height, width)
-
+  
   # pad the image and kernel so that they are n by n
   image_padded = np.zeros((n, n))
   kernel_padded = np.zeros_like(image_padded)
   image_padded[0: height, 0: width] = image
-  kernel_padded[0: kernel_height, 0: kernel_width] = kernel
+  pad_coe = n/5
+  kernel_padded[0::pad_coe:kernel_height, 0:pad_coe:kernel_width] = kernel
   # apply Fourier transform
   imageFT = forwardFT(image_padded)
   kernelFT = forwardFT(kernel_padded)
   # multipy
-  product = np.dot(imageFT, kernelFT)
+  product = np.cross(imageFT, kernelFT)
   # inverse transform
   smoothedImage = inverseFT(product)[0: height, 0: width]
   return smoothedImage
+  '''
+
+  kernel = np.flipud(np.fliplr(kernel))    # Flip the kernel
+  smoothedImage = np.zeros_like(image)            # convolution output
+  # Add zero padding to the input image
+  image_padded = np.zeros((image.shape[0] + 4, image.shape[1] + 4))
+  image_padded[2:-2, 2:-2] = image
+  for x in range(image.shape[1]):     # Loop over every pixel of the image
+    for y in range(image.shape[0]):
+      # element-wise multiplication of the kernel and the image
+      smoothedImage[y,x]=(kernel*image_padded[y:y+5,x:x+5]).sum()
+  return smoothedImage
 
 
-      
 # Compute the image's gradient magnitudes and directions
 #
 # The directions are in the range [0,7], where 0 is to the right, 2 is
