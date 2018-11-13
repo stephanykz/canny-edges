@@ -76,7 +76,7 @@ def compute():
   if smoothImage is None:
     smoothImage = np.zeros( (height,width), dtype=np.float_ )
 
-  smooth( image, smoothImage )
+  smoothImage = smooth( image )
   print 'finding gradients'
 
   if gradientMags is None:
@@ -126,7 +126,7 @@ def compute():
 #
 # [1 mark]
 
-def smooth( image, smoothedImage ):
+def smooth( image):
 
   height = image.shape[0]
   width  = image.shape[1]
@@ -138,6 +138,24 @@ def smooth( image, smoothedImage ):
                                   [1,  4,  7,  4, 1]] )
 
   # YOUR CODE HERE
+  kernel_height = kernel.shape[0]
+  kernel_width = kernel.shape[1]
+  n = max(height, width)
+
+  # pad the image and kernel so that they are n by n
+  image_padded = np.zeros((n, n))
+  kernel_padded = np.zeros_like(image_padded)
+  image_padded[0: height, 0: width] = image
+  kernel_padded[0: kernel_height, 0: kernel_width] = kernel
+  # apply Fourier transform
+  imageFT = forwardFT(image_padded)
+  kernelFT = forwardFT(kernel_padded)
+  # multipy
+  product = np.dot(imageFT, kernelFT)
+  # inverse transform
+  smoothedImage = inverseFT(product)[0: height, 0: width]
+  return smoothedImage
+
 
       
 # Compute the image's gradient magnitudes and directions
@@ -263,7 +281,7 @@ def display():
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER)
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, [1,0,0,1] );
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, [1,0,0,1] )
 
   # Images to draw, in rows and columns
 
@@ -653,6 +671,17 @@ def wrap( val, max ):
   else:
     return val
 
+
+
+def forwardFT(image):
+  return np.fft.fft2(image)
+
+
+# Do an inverse FT
+# Input is a 2D numpy array of complex values.
+# Output is the same.
+def inverseFT(image):
+  return np.fft.ifft2(image)
 
 
 # Load initial data
