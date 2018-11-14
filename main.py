@@ -79,10 +79,15 @@ def compute():
   smoothImage = smooth( image )
   print 'finding gradients'
 
+  if gradientMags is None:
+    gradientMags = np.zeros((height, width), dtype=np.float_)
+
   if gradientDirs is None:
     gradientDirs = np.zeros( (height,width), dtype=np.float_ )
 
-  gradientMags, gradientDirs = findGradients( smoothImage )
+  # gradientMags, gradientDirs = findGradients( smoothImage )
+
+  findGradients(smoothImage )
 
   print 'suppressing non-maxima'
 
@@ -184,37 +189,37 @@ def findGradients( image ):
   height = image.shape[0]
   width  = image.shape[1]
 
-  kernel_gx = np.array([[-1, 0, 1],
-                       [-2, 0, 2],
-                       [-1, 0, 1]])
-
-  kernel_gy = np.array([[1, 2, 1],
-                       [0, 0, 0],
-                       [-1, -2, -1]])
-
-  # YOUR CODE HERE
-  kernel_gx = np.flipud(np.fliplr(kernel_gx))    # Flip the kernel
-  Image_gx = np.zeros_like(image)            # convolution output
-  Image_gy = np.zeros_like(image)            # convolution output
-  # Add zero padding to the input image
-  image_padded = np.zeros((image.shape[0] + 2, image.shape[1] + 2))
-  image_padded[1:-1, 1:-1] = image
-  for x in range(width):     # Loop over every pixel of the image
-    for y in range(height):
-      # element-wise multiplication of the kernel and the image
-      Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
-      Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
-
-  # Calculate the gradient magnitude
-  # Euclidean distance
-  # gMags = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
-  # Manhattan distance
-  gMags = np.add(np.linalg.norm(Image_gx, axis=0), np.linalg.norm(Image_gy, axis=0)
-
-  # Find the gradient direction
-  gDirs = np.arctan(np.divide(np.linalg.norm(Image_gx, axis=0),np.linalg.norm(Image_gy, axis=0)))
-
-  return gMags, gDirs
+  # kernel_gx = np.array([[-1, 0, 1],
+  #                      [-2, 0, 2],
+  #                      [-1, 0, 1]])
+  #
+  # kernel_gy = np.array([[1, 2, 1],
+  #                      [0, 0, 0],
+  #                      [-1, -2, -1]])
+  #
+  # # YOUR CODE HERE
+  # kernel_gx = np.flipud(np.fliplr(kernel_gx))    # Flip the kernel
+  # Image_gx = np.zeros_like(image)            # convolution output
+  # Image_gy = np.zeros_like(image)            # convolution output
+  # # Add zero padding to the input image
+  # image_padded = np.zeros((image.shape[0] + 2, image.shape[1] + 2))
+  # image_padded[1:-1, 1:-1] = image
+  # for x in range(width):     # Loop over every pixel of the image
+  #   for y in range(height):
+  #     # element-wise multiplication of the kernel and the image
+  #     Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
+  #     Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
+  #
+  # # Calculate the gradient magnitude
+  # # Euclidean distance
+  # # gMags = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
+  # # Manhattan distance
+  # gMags = np.add(np.linalg.norm(Image_gx, axis=0), np.linalg.norm(Image_gy, axis=0))
+  #
+  # # Find the gradient direction
+  # gDirs = np.arctan(np.divide(np.linalg.norm(Image_gx, axis=0),np.linalg.norm(Image_gy, axis=0)))
+  #
+  # return gMags, gDirs
 
   
 
@@ -230,7 +235,7 @@ def suppressNonMaxima( magnitude, gradientDirs, maximaImage ):
   # gradient offsets for each gradient direction in [0,7]
 
   offset = [ (1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1) ]
-
+  mag = magnitude
   height = magnitude.shape[0]
   width  = magnitude.shape[1]
 
