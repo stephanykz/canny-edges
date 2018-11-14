@@ -208,7 +208,9 @@ def findGradients( image, gradientMags, gradientDirs ):
       Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
       Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
   # Calculate the gradient magnitude
-  return smoothedImage
+  gradient = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
+
+  return gradient
   
 
 # Suppress the non-maxima in the gradient directions
