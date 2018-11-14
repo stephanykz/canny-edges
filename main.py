@@ -79,13 +79,10 @@ def compute():
   smoothImage = smooth( image )
   print 'finding gradients'
 
-  if gradientMags is None:
-    gradientMags = np.zeros( (height,width), dtype=np.float_ )
-
   if gradientDirs is None:
     gradientDirs = np.zeros( (height,width), dtype=np.float_ )
 
-  findGradients( smoothImage, gradientMags, gradientDirs )
+  gradientMags, gradientDirs = findGradients( smoothImage )
 
   print 'suppressing non-maxima'
 
@@ -182,7 +179,7 @@ def smooth( image):
 # 1 of the two marks is for a *good* (i.e. simple, one-line)
 # calculation of direction.
 
-def findGradients( image, gradientMags, gradientDirs ):
+def findGradients( image ):
 
   height = image.shape[0]
   width  = image.shape[1]
@@ -207,10 +204,14 @@ def findGradients( image, gradientMags, gradientDirs ):
       # element-wise multiplication of the kernel and the image
       Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
       Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
-  # Calculate the gradient magnitude
-  gradient = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
 
-  return gradient
+  # Calculate the gradient magnitude using Euclidean distance
+  # gMags = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
+  # Calculate the gradient magnitude using Manhattan distance
+  gMags = np.add(np.linalg.norm(Image_gx, axis=0), np.linalg.norm(Image_gy, axis=0)
+
+  # Find the gradient direction
+
   
 
 # Suppress the non-maxima in the gradient directions
