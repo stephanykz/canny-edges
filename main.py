@@ -85,9 +85,7 @@ def compute():
   if gradientDirs is None:
     gradientDirs = np.zeros( (height,width), dtype=np.float_ )
 
-  # gradientMags, gradientDirs = findGradients( smoothImage )
-
-  findGradients(smoothImage )
+  gradientMags, gradientDirs = findGradients( smoothImage )
 
   print 'suppressing non-maxima'
 
@@ -140,27 +138,6 @@ def smooth( image):
                                   [1,  4,  7,  4, 1]] )
 
   # YOUR CODE HERE
-  '''
-  kernel_height = kernel.shape[0]
-  kernel_width = kernel.shape[1]
-  n = max(height, width)
-  
-  # pad the image and kernel so that they are n by n
-  image_padded = np.zeros((n, n))
-  kernel_padded = np.zeros_like(image_padded)
-  image_padded[0: height, 0: width] = image
-  pad_coe = n/5
-  kernel_padded[0::pad_coe:kernel_height, 0:pad_coe:kernel_width] = kernel
-  # apply Fourier transform
-  imageFT = forwardFT(image_padded)
-  kernelFT = forwardFT(kernel_padded)
-  # multipy
-  product = np.cross(imageFT, kernelFT)
-  # inverse transform
-  smoothedImage = inverseFT(product)[0: height, 0: width]
-  return smoothedImage
-  '''
-
   kernel = np.flipud(np.fliplr(kernel))    # Flip the kernel
   smoothedImage = np.zeros_like(image)            # convolution output
   # Add zero padding to the input image
@@ -189,37 +166,35 @@ def findGradients( image ):
   height = image.shape[0]
   width  = image.shape[1]
 
-  # kernel_gx = np.array([[-1, 0, 1],
-  #                      [-2, 0, 2],
-  #                      [-1, 0, 1]])
-  #
-  # kernel_gy = np.array([[1, 2, 1],
-  #                      [0, 0, 0],
-  #                      [-1, -2, -1]])
-  #
-  # # YOUR CODE HERE
-  # kernel_gx = np.flipud(np.fliplr(kernel_gx))    # Flip the kernel
-  # Image_gx = np.zeros_like(image)            # convolution output
-  # Image_gy = np.zeros_like(image)            # convolution output
-  # # Add zero padding to the input image
-  # image_padded = np.zeros((image.shape[0] + 2, image.shape[1] + 2))
-  # image_padded[1:-1, 1:-1] = image
-  # for x in range(width):     # Loop over every pixel of the image
-  #   for y in range(height):
-  #     # element-wise multiplication of the kernel and the image
-  #     Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
-  #     Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
-  #
-  # # Calculate the gradient magnitude
-  # # Euclidean distance
-  # # gMags = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
-  # # Manhattan distance
-  # gMags = np.add(np.linalg.norm(Image_gx, axis=0), np.linalg.norm(Image_gy, axis=0))
-  #
-  # # Find the gradient direction
-  # gDirs = np.arctan(np.divide(np.linalg.norm(Image_gx, axis=0),np.linalg.norm(Image_gy, axis=0)))
-  #
-  # return gMags, gDirs
+  kernel_gx = np.array([[-1, 0, 1],
+                       [-2, 0, 2],
+                       [-1, 0, 1]])
+
+  kernel_gy = np.array([[1, 2, 1],
+                       [0, 0, 0],
+                       [-1, -2, -1]])
+
+  # YOUR CODE HERE
+  kernel_gx = np.flipud(np.fliplr(kernel_gx))    # Flip the kernel
+  Image_gx = np.zeros_like(image)            # convolution output
+  Image_gy = np.zeros_like(image)            # convolution output
+  # Add zero padding to the input image
+  image_padded = np.zeros((image.shape[0] + 2, image.shape[1] + 2))
+  image_padded[1:-1, 1:-1] = image
+  for x in range(width):     # Loop over every pixel of the image
+    for y in range(height):
+      # element-wise multiplication of the kernel and the image
+      Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
+      Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
+
+  # Calculate the gradient magnitude
+  # Euclidean distance
+  gMags = np.sqrt(np.add((Image_gx * Image_gx), (Image_gy * Image_gy)))
+
+  # Find the gradient direction
+  gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
+
+  return gMags, gDirs
 
   
 
@@ -235,7 +210,6 @@ def suppressNonMaxima( magnitude, gradientDirs, maximaImage ):
   # gradient offsets for each gradient direction in [0,7]
 
   offset = [ (1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1) ]
-  mag = magnitude
   height = magnitude.shape[0]
   width  = magnitude.shape[1]
 
