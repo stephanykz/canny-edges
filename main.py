@@ -92,7 +92,7 @@ def compute():
   if maximaImage is None:
     maximaImage = np.zeros( (height,width), dtype=np.float_ )
 
-  suppressNonMaxima( gradientMags, gradientDirs, maximaImage )
+  maximaImage = suppressNonMaxima( gradientMags, gradientDirs )
 
   print 'double thresholding'
 
@@ -126,7 +126,7 @@ def compute():
 #
 # [1 mark]
 
-def smooth( image):
+def smooth(image):
 
   height = image.shape[0]
   width  = image.shape[1]
@@ -195,9 +195,7 @@ def findGradients( image ):
   gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
   gDirs = np.zeros_like(gMags)
   # Find the gradient direction
-  gDirs = np.around((np.arctan2((Image_gy + 0.001), (Image_gx + 0.001)) + math.pi) / math.pi * 4 )# add 0.001 to avoid dividing by zero
-  min = np.amin(gDirs)
-  max = np.amax(gDirs)
+  gDirs = np.floor((np.arctan2((Image_gy + 0.001), (Image_gx + 0.001)) + math.pi) / math.pi * 4 ) # add 0.001 to avoid dividing by zero
   return gMags, gDirs
 
   
@@ -209,15 +207,30 @@ def findGradients( image ):
 #
 # [1 mark]
 
-def suppressNonMaxima( magnitude, gradientDirs, maximaImage ):
+def suppressNonMaxima( magnitude, gradientDirs ):
 
   # gradient offsets for each gradient direction in [0,7]
 
   offset = [ (1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1) ]
   height = magnitude.shape[0]
   width  = magnitude.shape[1]
+  maximaImage = np.zeros_like(magnitude)
 
-  # YOUR CODE HERE  
+  # YOUR CODE HEREcc
+  for x in range(width):     # Loop over every pixel of the image
+    for y in range(height):
+      max = magnitude[y, x]
+      dir = int(gradientDirs[y, x]) # look up offset index with the direction index
+
+      # compare each pixel against its neighbouring pixels,
+      try:
+        if max >= gradientDirs[(y+offset[dir][1]), (x+offset[dir][0])] and max >= gradientDirs[(y-offset[dir][1]), (x-offset[dir][0])]:
+          maximaImage[y, x] = image[y, x] # if it is a local maxima, set the pixel value 
+      except IndexError:  # catch IndexError when evaluating boundary pixels and do nothing
+        pass
+
+  return maximaImage
+
 
 
 
