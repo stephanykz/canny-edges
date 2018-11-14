@@ -193,7 +193,11 @@ def findGradients( image ):
 
   # Find the gradient direction
   gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
-
+  gDirs = np.zeros_like(gMags)
+  # Find the gradient direction
+  gDirs = np.around((np.arctan2((Image_gy + 0.001), (Image_gx + 0.001)) + math.pi) / math.pi * 4 )# add 0.001 to avoid dividing by zero
+  min = np.amin(gDirs)
+  max = np.amax(gDirs)
   return gMags, gDirs
 
   
