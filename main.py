@@ -164,8 +164,8 @@ def smooth( image):
   # Add zero padding to the input image
   image_padded = np.zeros((image.shape[0] + 4, image.shape[1] + 4))
   image_padded[2:-2, 2:-2] = image
-  for x in range(image.shape[1]):     # Loop over every pixel of the image
-    for y in range(image.shape[0]):
+  for x in range(width):     # Loop over every pixel of the image
+    for y in range(height):
       # element-wise multiplication of the kernel and the image
       smoothedImage[y,x]=(kernel*image_padded[y:y+5,x:x+5]).sum()
   return smoothedImage
@@ -187,8 +187,28 @@ def findGradients( image, gradientMags, gradientDirs ):
   height = image.shape[0]
   width  = image.shape[1]
 
-  # YOUR CODE HERE
+  kernel_gx = np.array([[-1, 0, 1],
+                       [-2, 0, 2],
+                       [-1, 0, 1]])
 
+  kernel_gy = np.array([[1, 2, 1],
+                       [0, 0, 0],
+                       [-1, -2, -1]])
+
+  # YOUR CODE HERE
+  kernel_gx = np.flipud(np.fliplr(kernel_gx))    # Flip the kernel
+  Image_gx = np.zeros_like(image)            # convolution output
+  Image_gy = np.zeros_like(image)            # convolution output
+  # Add zero padding to the input image
+  image_padded = np.zeros((image.shape[0] + 2, image.shape[1] + 2))
+  image_padded[1:-1, 1:-1] = image
+  for x in range(width):     # Loop over every pixel of the image
+    for y in range(height):
+      # element-wise multiplication of the kernel and the image
+      Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
+      Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
+  # Calculate the gradient magnitude
+  return smoothedImage
   
 
 # Suppress the non-maxima in the gradient directions
