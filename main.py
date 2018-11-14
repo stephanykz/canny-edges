@@ -205,12 +205,16 @@ def findGradients( image ):
       Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
       Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
 
-  # Calculate the gradient magnitude using Euclidean distance
+  # Calculate the gradient magnitude
+  # Euclidean distance
   # gMags = np.sqrt(np.add(np.linalg.matrix_power(Image_gx, 2), np.linalg.matrix_power(Image_gy, 2)))
-  # Calculate the gradient magnitude using Manhattan distance
+  # Manhattan distance
   gMags = np.add(np.linalg.norm(Image_gx, axis=0), np.linalg.norm(Image_gy, axis=0)
 
   # Find the gradient direction
+  gDirs = np.arctan(np.divide(np.linalg.norm(Image_gx, axis=0),np.linalg.norm(Image_gy, axis=0)))
+
+  return gMags, gDirs
 
   
 
