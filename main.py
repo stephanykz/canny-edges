@@ -99,14 +99,14 @@ def compute():
   if thresholdImage is None:
     thresholdImage = np.zeros( (height,width), dtype=np.float_ )
 
-    thresholdImage = doubleThreshold( maximaImage )
+  thresholdImage = doubleThreshold( maximaImage )
 
   print 'edge tracking'
 
   if edgeImage is None:
     edgeImage = np.zeros( (height,width), dtype=np.float_ )
 
-  trackEdges( thresholdImage, edgeImage )
+  edgeImage = trackEdges( thresholdImage )
 
   # extract edge pixels
 
@@ -191,11 +191,11 @@ def findGradients( image ):
   gMags = np.sqrt(np.add((Image_gx * Image_gx), (Image_gy * Image_gy)))
 
   # Find the gradient direction
-  #gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
-  #gDirs = np.zeros_like(gMags)
+  # gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
+  # gDirs = np.zeros_like(gMags)
   gDirs = np.floor((np.arctan2((Image_gy + 0.001), (Image_gx + 0.001)) + math.pi) / math.pi * 4 ) # add 0.001 to avoid dividing by zero
-  return gMags, gDirs
 
+  return gMags, gDirs
   
 
 # Suppress the non-maxima in the gradient directions
@@ -205,30 +205,29 @@ def findGradients( image ):
 #
 # [1 mark]
 
-def suppressNonMaxima( magnitude, gradientDirs ):
+def suppressNonMaxima( gMags, gDirs ):
 
   # gradient offsets for each gradient direction in [0,7]
 
-  offset = [ (1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1),(0,-1),(1,-1) ]
-  height = magnitude.shape[0]
-  width  = magnitude.shape[1]
-  maximaImage = np.zeros_like(magnitude)
+  offset = [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]
+  height = gMags.shape[0]
+  width = gMags.shape[1]
+  maximaIm = np.zeros_like(gMags)
 
-  # YOUR CODE HEREcc
-  for x in range(width):     # Loop over every pixel of the image
+  # YOUR CODE HERE
+  for x in range(width):  # Loop over every pixel of the image
     for y in range(height):
-      max = magnitude[y, x]
-      dir = int(gradientDirs[y, x]) # look up offset index with the direction index
+      max = gMags[y, x]
+      dir = int(gDirs[y, x])  # look up offset index with the direction index
 
       # compare each pixel against its neighbouring pixels,
       try:
-        if max >= gradientDirs[(y+offset[dir][1]), (x+offset[dir][0])] and max >= gradientDirs[(y-offset[dir][1]), (x-offset[dir][0])]:
-          maximaImage[y, x] = image[y, x] # if it is a local maxima, set the pixel value 
+        if max >= gMags[(y + offset[dir][1]), (x + offset[dir][0])] and max >= gMags[(y - offset[dir][1]), (x - offset[dir][0])]:
+          maximaIm[y, x] = gMags[y, x]  # if it is a local maxima, set the pixel value
       except IndexError:  # catch IndexError when evaluating boundary pixels and do nothing
         pass
 
-  return maximaImage
-
+  return maximaIm
 
 
 
@@ -239,19 +238,26 @@ def suppressNonMaxima( magnitude, gradientDirs ):
 #
 # [1 mark]
 
-def doubleThreshold( maximaImage ):
+def doubleThreshold( maximaIm ):
 
-  height = maximaImage.shape[0]
-  width  = maximaImage.shape[1]
+  height = maximaIm.shape[0]
+  width  = maximaIm.shape[1]
 
   # YOUR CODE HERE
-  thresholdImage = maximaImage
+  thresholdIm = maximaIm
 
-  thresholdImage[np.logical_and(lowerThreshold <= thresholdImage,thresholdImage <= upperThreshold)] = 128
-  thresholdImage[thresholdImage < lowerThreshold] = 0
-  thresholdImage[thresholdImage > upperThreshold] = 255
+  for x in range(width):     # Loop over every pixel of the image
+    for y in range(height):
+      if maximaIm[y, x] < lowerThreshold:
+          thresholdIm[y, x] = 0
+      elif maximaIm[y, x] > upperThreshold:
+          thresholdIm[y, x] = 255
+      else:
+          thresholdIm[y, x] = 128
 
-  return thresholdImage
+
+  return thresholdIm
+
 
 
 # Attach weak pixels to strong pixels
@@ -267,18 +273,28 @@ def doubleThreshold( maximaImage ):
 #
 # 1 of the two marks is for an *efficient* implementation.
 
-def trackEdges( thresholdImage, edgePixels ):
+def trackEdges( thresholdImage ):
 
   height = thresholdImage.shape[0]
   width  = thresholdImage.shape[1]
-  
-  edgePixels.fill(0)
+
+  edgeIm = np.zeros_like(thresholdImage)
 
   offsets = [ (1,0), (1,1), (0,1), (-1,1), (-1,0), (-1,-1), (0,-1), (1,-1) ]
 
   # YOUR CODE HERE
+  for x in range(width):     # Loop over every pixel of the image
+    for y in range(height):
+      if thresholdImage[y, x] == 255:
+        edgeIm[y, x] = 255
 
+        dirc = int(gradientDirs[y, x]) # look up offset index with the direction index
+        if thresholdImage[(y+offsets[dirc][1]), (x+offsets[dirc][0])] == 128:
+          edgeIm[(y + offsets[dirc][1]), (x + offsets[dirc][0])] = 255
+        if thresholdImage[(y-offsets[dirc][1]), (x-offsets[dirc][0])] == 128:
+          edgeIm[(y - offsets[dirc][1]), (x - offsets[dirc][0])] = 255
 
+  return edgeIm
     
 # File dialog
 
