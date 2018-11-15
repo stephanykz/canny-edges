@@ -187,14 +187,12 @@ def findGradients( image ):
       Image_gx[y,x] = (kernel_gx * image_padded[y:y + 3, x:x + 3]).sum()
       Image_gy[y,x] = (kernel_gy * image_padded[y:y + 3, x:x + 3]).sum()
 
-  # Calculate the gradient magnitude
-  # Euclidean distance
+  # Calculate the gradient magnitude - Euclidean distance
   gMags = np.sqrt(np.add((Image_gx * Image_gx), (Image_gy * Image_gy)))
 
   # Find the gradient direction
-  gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
-  gDirs = np.zeros_like(gMags)
-  # Find the gradient direction
+  #gDirs = np.arctan(Image_gy + 0.001 / (Image_gx + 0.001))  # add 0.001 to avoid dividing by zero
+  #gDirs = np.zeros_like(gMags)
   gDirs = np.floor((np.arctan2((Image_gy + 0.001), (Image_gx + 0.001)) + math.pi) / math.pi * 4 ) # add 0.001 to avoid dividing by zero
   return gMags, gDirs
 
@@ -246,7 +244,13 @@ def doubleThreshold( maximaImage, thresholdImage ):
   height = maximaImage.shape[0]
   width  = maximaImage.shape[1]
 
-  # YOUR CODE HERE  
+  # YOUR CODE HERE
+  global maximaImage, thresholdImage
+  thresholdImage = maximaImage
+
+  thresholdImage[thresholdImage < lowerThreshold] = 0
+  thresholdImage[thresholdImage > upperThreshold] = 255
+
 
 
 
