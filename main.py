@@ -250,6 +250,7 @@ def doubleThreshold( maximaImage, thresholdImage ):
 
   thresholdImage[thresholdImage < lowerThreshold] = 0
   thresholdImage[thresholdImage > upperThreshold] = 255
+  thresholdImage[lowerThreshold <= thresholdImage <= upperThreshold ] = 128
 
 
 
