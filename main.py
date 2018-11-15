@@ -99,7 +99,7 @@ def compute():
   if thresholdImage is None:
     thresholdImage = np.zeros( (height,width), dtype=np.float_ )
 
-  doubleThreshold( maximaImage, thresholdImage )
+    thresholdImage = doubleThreshold( maximaImage )
 
   print 'edge tracking'
 
@@ -239,20 +239,19 @@ def suppressNonMaxima( magnitude, gradientDirs ):
 #
 # [1 mark]
 
-def doubleThreshold( maximaImage, thresholdImage ):
+def doubleThreshold( maximaImage ):
 
   height = maximaImage.shape[0]
   width  = maximaImage.shape[1]
 
   # YOUR CODE HERE
-  global maximaImage, thresholdImage
   thresholdImage = maximaImage
 
+  thresholdImage[np.logical_and(lowerThreshold <= thresholdImage,thresholdImage <= upperThreshold)] = 128
   thresholdImage[thresholdImage < lowerThreshold] = 0
   thresholdImage[thresholdImage > upperThreshold] = 255
-  thresholdImage[lowerThreshold <= thresholdImage <= upperThreshold ] = 128
 
-
+  return thresholdImage
 
 
 # Attach weak pixels to strong pixels
