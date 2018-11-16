@@ -245,7 +245,7 @@ def doubleThreshold(maximaIm):
     width = maximaIm.shape[1]
 
     # YOUR CODE HERE
-    thresholdIm = maximaIm
+    thresholdIm = np.copy(maximaIm)
 
     for x in range(width):  # Loop over every pixel of the image
         for y in range(height):
@@ -257,7 +257,6 @@ def doubleThreshold(maximaIm):
                 thresholdIm[y, x] = 128
 
     return thresholdIm
-
 
 # Attach weak pixels to strong pixels
 #
@@ -711,17 +710,6 @@ def wrap(val, max):
         return val - max
     else:
         return val
-
-
-def forwardFT(image):
-    return np.fft.fft2(image)
-
-
-# Do an inverse FT
-# Input is a 2D numpy array of complex values.
-# Output is the same.
-def inverseFT(image):
-    return np.fft.ifft2(image)
 
 
 # Load initial data
